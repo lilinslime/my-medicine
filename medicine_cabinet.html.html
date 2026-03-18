@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart First Aid Cabinet</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2563eb; --primary-hover: #1d4ed8; --bg: #f8fafc;
+    --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b;
+    --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --empty: #cbd5e1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+  body { background-color: var(--bg); color: var(--text-main); padding-bottom: 80px; }
+
+  header { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; text-align: center; }
+  header h1 { font-size: 22px; margin-bottom: 5px; }
+  
+  .tabs { display: flex; justify-content: center; gap: 10px; background: white; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .tab-btn { padding: 10px 20px; border: none; background: #f1f5f9; color: var(--text-muted); border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 15px; }
+  .tab-btn.active { background: var(--primary); color: white; }
+  .tab-btn:hover:not(.active) { background: #e2e8f0; }
+
+  .container { max-width: 1000px; margin: 25px auto; padding: 0 20px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Grid ช่องยา */
+  .med-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+  .med-card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; border-left: 6px solid var(--empty); display: flex; flex-direction: column; }
+  .status-ok { border-left-color: var(--success); } .status-warn { border-left-color: var(--warning); } .status-exp { border-left-color: var(--danger); }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .slot-id { font-weight: bold; color: var(--primary); background: #eff6ff; padding: 4px 12px; border-radius: 8px; }
+  .status-pill { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+  .pill-empty { background: #f1f5f9; color: var(--text-muted); } .pill-ok { background: #d1fae5; color: #065f46; } .pill-warn { background: #fef3c7; color: #92400e; } .pill-exp { background: #fee2e2; color: #991b1b; }
+  .form-group { margin-bottom: 12px; } .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  select, input[type="date"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+  .days-remain { font-size: 13px; text-align: right; margin-top: 4px; font-weight: 500; min-height: 20px; margin-bottom: 10px; }
+
+  /* ปุ่มอัปเดตแยกแต่ละช่อง */
+  .btn-single-update { 
+    margin-top: auto; width: 100%; padding: 10px; background: #f1f5f9; color: var(--primary); 
+    border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px; 
+  }
+  .btn-single-update:hover { background: #e0f2fe; border-color: #bae6fd; }
+  .btn-single-update:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+
+  /* สไตล์ตารางหน้าแสดงข้อมูล */
+  .data-table-wrapper { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-top: 20px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
+  th, td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 14px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f1f5f9; }
+  .btn-refresh { display: block; margin: 0 auto 20px auto; background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); border-top: 1px solid #e2e8f0; padding: 15px 20px; display: flex; justify-content: center; z-index: 100; }
+  .btn-save { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(37,99,235,0.2); }
+
+  #toast { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; transform: translateX(150%); transition: 0.3s; z-index: 1000; font-weight: 500; }
+  #toast.show { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fa-solid fa-notes-medical"></i> ตู้ยาสามัญอัจฉริยะ</h1>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('edit')"><i class="fa-solid fa-pen-to-square"></i> จัดการยา</button>
+  <button class="tab-btn" onclick="switchTab('view')"><i class="fa-solid fa-table"></i> ตรวจสอบข้อมูลตู้ยา </button>
+</div>
+
+<div class="container">
+  
+  <div id="page-edit" class="page active">
+    <div class="med-grid" id="medGrid"></div>
+  </div>
+
+  <div id="page-view" class="page">
+    <button class="btn-refresh" onclick="fetchDataFromSheet()">
+      <i class="fa-solid fa-rotate-right"></i> อัปเดตข้อมูล
+    </button>
+    <div class="data-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ช่องที่</th>
+            <th>ชื่อยา</th>
+            <th>วันหมดอายุ</th>
+            <th>สถานะ</th>
+            <th>อัปเดตล่าสุด</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="5" style="text-align: center; color: gray;">คลิก "อัปเดตข้อมูลล่าสุด" เพื่อดึงข้อมูล</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-bar" id="bottomBar">
+  <button class="btn-save" id="saveBtn" onclick="saveAllToCloud()"><i class="fa-solid fa-layer-group"></i> บันทึกข้อมูลทั้งหมด</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ---------- ใส่ URL เว็บแอป (ที่เพิ่ง Deploy ใหม่) ตรงนี้ ----------
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzPPAR1uTw250__LM5IaOsnm9WllsSUvpXDRL6rSNoKnt6YafJ9EREYSYucfRN7H5SpNA/exec";
+
+const MEDICINES = [
+  "--- ว่าง (ไม่มียา) ---", "พาราเซตามอล 500mg", "ยาแก้ไอ", "ยาลดกรด (แอนตาซิด)", 
+  "ยาแก้ท้องเสีย (loperamide)", "ยาแก้แพ้ (chlorpheniramine)", "ยาแก้ปวดท้อง (buscopan)", "พลาสเตอร์", "เบตาดีน"
+];
+
+let cabinetData = JSON.parse(localStorage.getItem('smartCabinetData')) || Array(8).fill({ name: "", expiry: "" });
+
+function switchTab(tabName) {
+  document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(`page-${tabName}`).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.getElementById('bottomBar').style.display = tabName === 'edit' ? 'flex' : 'none';
+  if (tabName === 'view') fetchDataFromSheet();
+}
+
+function initGrid() {
+  const grid = document.getElementById('medGrid');
+  grid.innerHTML = '';
+  for(let i = 0; i < 8; i++) {
+    let slot = cabinetData[i];
+    let optionsHTML = MEDICINES.map(m => `<option value="${m}" ${slot.name === m ? 'selected' : ''}>${m}</option>`).join('');
+    grid.innerHTML += `
+      <div class="med-card" id="card-${i}">
+        <div class="card-header">
+          <span class="slot-id">ช่องที่ ${i + 1}</span>
+          <span class="status-pill" id="pill-${i}"></span>
+        </div>
+        <div class="form-group">
+          <label>ชนิดยา</label>
+          <select id="name-${i}" onchange="updateData(${i}, 'name', this.value)">${optionsHTML}</select>
+        </div>
+        <div class="form-group">
+          <label>วันหมดอายุ</label>
+          <input type="date" id="expiry-${i}" value="${slot.expiry || ''}" onchange="updateData(${i}, 'expiry', this.value)">
+        </div>
+        <div class="days-remain" id="days-${i}"></div>
+        
+        <button class="btn-single-update" id="btn-update-${i}" onclick="updateSingleSlot(${i})">
+          <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกช่อง ${i + 1}
+        </button>
+      </div>`;
+  }
+  for(let i = 0; i < 8; i++) { updateCardUI(i); }
+}
+
+function calculateStatus(expiry) {
+  if (!expiry) return { type: 'empty', text: 'ว่าง', days: null, color: 'var(--text-muted)' };
+  const diffDays = Math.ceil((new Date(expiry) - new Date()) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return { type: 'exp', text: 'หมดอายุ', days: diffDays, color: 'var(--danger)' };
+  if (diffDays <= 30) return { type: 'warn', text: 'ใกล้หมด', days: diffDays, color: 'var(--warning)' };
+  return { type: 'ok', text: 'ปกติ', days: diffDays, color: 'var(--success)' };
+}
+
+function updateData(index, field, value) {
+  if (field === 'name' && value === MEDICINES[0]) { cabinetData[index] = {name: "", expiry: ""}; document.getElementById(`expiry-${index}`).value = ""; } 
+  else { cabinetData[index][field] = value; }
+  localStorage.setItem('smartCabinetData', JSON.stringify(cabinetData));
+  updateCardUI(index);
+}
+
+function updateCardUI(index) {
+  const slot = cabinetData[index];
+  const status = calculateStatus(slot.name ? slot.expiry : null);
+  document.getElementById(`card-${index}`).className = `med-card status-${status.type}`;
+  const pill = document.getElementById(`pill-${index}`);
+  pill.className = `status-pill pill-${status.type}`; pill.innerText = status.text;
+  const daysEl = document.getElementById(`days-${index}`); daysEl.style.color = status.color;
+  daysEl.innerText = status.days !== null && slot.name ? (status.days < 0 ? `เลยมาแล้ว ${Math.abs(status.days)} วัน` : `เหลือ ${status.days} วัน`) : '';
+}
+
+function showToast(msg, isSuccess) {
+  const toast = document.getElementById('toast');
+  toast.innerText = msg; toast.style.backgroundColor = isSuccess ? 'var(--success)' : 'var(--danger)';
+  toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ---- ฟังก์ชันใหม่: อัปเดตเฉพาะช่องที่เลือก ----
+async function updateSingleSlot(index) {
+  const btn = document.getElementById(`btn-update-${index}`);
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+
+  const slot = cabinetData[index];
+  const status = slot.name ? calculateStatus(slot.expiry).text : 'ว่าง';
+  
+  // สร้างข้อมูลแถวเดียว
+  const rowData = [index + 1, slot.name || '', slot.expiry || '', status, new Date().toLocaleString('th-TH')];
+
+  try {
+    const res = await fetch(WEB_APP_URL, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      // แนบ action = "update_single" ไปให้ Sheet รู้
+      body: JSON.stringify({ action: "update_single", rowIndex: index + 1, value: rowData }), 
+      redirect: 'follow' 
+    });
+    if (res.ok) showToast(`✅ บันทึกข้อมูลช่องที่ ${index + 1} สำเร็จ!`, true); 
+    else throw new Error('Network error');
+  } catch (err) { 
+    showToast(`❌ บันทึกช่องที่ ${index + 1} ไม่สำเร็จ`, false); 
+  } finally { 
+    btn.disabled = false; btn.innerHTML = originalHtml; 
+  }
+}
+
+// ---- ฟังก์ชันเดิม: อัปเดตทั้งหมด ----
+async function saveAllToCloud() {
+  const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกทั้งหมด...';
+  const rows = cabinetData.map((slot, i) => [i + 1, slot.name || '', slot.expiry || '', slot.name ? calculateStatus(slot.expiry).text : 'ว่าง', new Date().toLocaleString('th-TH')]);
+  try {
+    const res = await fetch(WEB_APP_URL, { 
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      body: JSON.stringify({ action: "update_all", values: rows }), redirect: 'follow' 
+    });
+    if (res.ok) showToast('✅ บันทึกข้อมูลทั้งหมดสำเร็จ!', true); else throw new Error('Network error');
+  } catch (err) { showToast('❌ บันทึกไม่สำเร็จ', false); } finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> บันทึกข้อมูลทั้งหมด'; }
+}
+
+async function fetchDataFromSheet() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดข้อมูล...</td></tr>';
+  try {
+    const response = await fetch(WEB_APP_URL);
+    const result = await response.json();
+    if (result.status === 'success' && result.data) {
+      tbody.innerHTML = ''; 
+      result.data.forEach(row => {
+        let statusColor = "color: gray;";
+        if(row[3] === "ปกติ") statusColor = "color: var(--success); font-weight: bold;";
+        if(row[3] === "ใกล้หมด") statusColor = "color: var(--warning); font-weight: bold;";
+        if(row[3] === "หมดอายุ") statusColor = "color: var(--danger); font-weight: bold;";
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${row[0]}</strong></td>
+            <td>${row[1] || '<span style="color:gray;">- ว่าง -</span>'}</td>
+            <td>${row[2] || '-'}</td>
+            <td style="${statusColor}">${row[3]}</td>
+            <td style="font-size: 12px; color: gray;">${row[4] || '-'}</td>
+          </tr>`;
+      });
+      showToast('✅ โหลดข้อมูลล่าสุดแล้ว', true);
+    } else throw new Error('Format Error');
+  } catch (error) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">❌ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่</td></tr>';
+    showToast('❌ โหลดข้อมูลไม่สำเร็จ', false);
+  }
+}
+
+initGrid();
+</script>
+</body>
+</html>
