@@ -23,11 +23,30 @@
   .tab-btn:hover:not(.active) { background: #e2e8f0; }
 
   .container { max-width: 1000px; margin: 25px auto; padding: 0 20px; }
-  .page { display: none; }
+  .page { display: none; animation: fadeIn 0.3s ease; }
   .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* สไตล์หน้า Home (หน้าแรก) */
+  .home-wrapper { text-align: center; margin-top: 40px; }
+  .home-icon { font-size: 70px; color: var(--primary); margin-bottom: 15px; }
+  .home-title { font-size: 24px; color: var(--text-main); margin-bottom: 10px; }
+  .home-subtitle { color: var(--text-muted); margin-bottom: 40px; }
+  .menu-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .menu-card { 
+    background: white; border-radius: 16px; padding: 40px 20px; width: 280px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+  .menu-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 25px rgba(37,99,235,0.15); }
+  .menu-card i { font-size: 50px; margin-bottom: 20px; }
+  .menu-card.edit-menu i { color: var(--warning); }
+  .menu-card.view-menu i { color: var(--success); }
+  .menu-card h3 { font-size: 18px; margin-bottom: 8px; }
+  .menu-card p { font-size: 13px; color: var(--text-muted); }
 
   /* Grid ช่องยา */
-  .med-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+  .med-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   .med-card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; border-left: 6px solid var(--empty); display: flex; flex-direction: column; }
   .status-ok { border-left-color: var(--success); } .status-warn { border-left-color: var(--warning); } .status-exp { border-left-color: var(--danger); }
   .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -55,7 +74,7 @@
   tr:hover { background: #f1f5f9; }
   .btn-refresh { display: block; margin: 0 auto 20px auto; background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); border-top: 1px solid #e2e8f0; padding: 15px 20px; display: flex; justify-content: center; z-index: 100; }
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); border-top: 1px solid #e2e8f0; padding: 15px 20px; display: flex; justify-content: center; z-index: 100; display: none; }
   .btn-save { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(37,99,235,0.2); }
 
   #toast { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; transform: translateX(150%); transition: 0.3s; z-index: 1000; font-weight: 500; }
@@ -69,19 +88,41 @@
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('edit')"><i class="fa-solid fa-pen-to-square"></i> จัดการยา</button>
-  <button class="tab-btn" onclick="switchTab('view')"><i class="fa-solid fa-table"></i> ตรวจสอบข้อมูลตู้ยา </button>
+  <button class="tab-btn active" id="tab-home" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> หน้าแรก</button>
+  <button class="tab-btn" id="tab-edit" onclick="switchTab('edit')"><i class="fa-solid fa-pen-to-square"></i> ตั้งค่ายา</button>
+  <button class="tab-btn" id="tab-view" onclick="switchTab('view')"><i class="fa-solid fa-table"></i> ข้อมูลตู้ยา</button>
 </div>
 
 <div class="container">
   
-  <div id="page-edit" class="page active">
+  <div id="page-home" class="page active">
+    <div class="home-wrapper">
+      <i class="fa-solid fa-briefcase-medical home-icon"></i>
+      <h2 class="home-title">ยินดีต้อนรับสู่ระบบจัดการตู้ยาอัจฉริยะ</h2>
+      <p class="home-subtitle">กรุณาเลือกเมนูการทำงานที่คุณต้องการด้านล่าง</p>
+      
+      <div class="menu-grid">
+        <div class="menu-card edit-menu" onclick="switchTab('edit')">
+          <i class="fa-solid fa-gear"></i>
+          <h3>ตั้งค่า / จัดการยา</h3>
+          <p>เพิ่มชื่อยา, ระบุวันหมดอายุ และอัปเดตข้อมูลของช่องยาทั้ง 8 ช่อง</p>
+        </div>
+        <div class="menu-card view-menu" onclick="switchTab('view')">
+          <i class="fa-solid fa-clipboard-check"></i>
+          <h3>ตรวจสอบข้อมูล</h3>
+          <p>ดูสรุปข้อมูลยาทั้งหมดที่ถูกบันทึกไว้ในระบบ Google Sheets</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-edit" class="page">
     <div class="med-grid" id="medGrid"></div>
   </div>
 
   <div id="page-view" class="page">
     <button class="btn-refresh" onclick="fetchDataFromSheet()">
-      <i class="fa-solid fa-rotate-right"></i> อัปเดตข้อมูล
+      <i class="fa-solid fa-rotate-right"></i> โหลดข้อมูลล่าสุดจาก Sheet
     </button>
     <div class="data-table-wrapper">
       <table>
@@ -95,7 +136,7 @@
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="5" style="text-align: center; color: gray;">คลิก "อัปเดตข้อมูลล่าสุด" เพื่อดึงข้อมูล</td></tr>
+          <tr><td colspan="5" style="text-align: center; color: gray;">คลิก "โหลดข้อมูลล่าสุดจาก Sheet" เพื่อดึงข้อมูล</td></tr>
         </tbody>
       </table>
     </div>
@@ -104,7 +145,7 @@
 </div>
 
 <div class="bottom-bar" id="bottomBar">
-  <button class="btn-save" id="saveBtn" onclick="saveAllToCloud()"><i class="fa-solid fa-layer-group"></i> บันทึกข้อมูลทั้งหมด</button>
+  <button class="btn-save" id="saveBtn" onclick="saveAllToCloud()"><i class="fa-solid fa-layer-group"></i> บันทึกข้อมูลทั้งหมด 8 ช่อง</button>
 </div>
 
 <div id="toast"></div>
@@ -121,11 +162,18 @@ const MEDICINES = [
 let cabinetData = JSON.parse(localStorage.getItem('smartCabinetData')) || Array(8).fill({ name: "", expiry: "" });
 
 function switchTab(tabName) {
+  // ซ่อนทุกหน้า และเอาไฮไลต์แท็บออก
   document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  
+  // โชว์หน้าที่เลือก
   document.getElementById(`page-${tabName}`).classList.add('active');
-  event.currentTarget.classList.add('active');
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+  
+  // โชว์ปุ่ม Save ด้านล่างเฉพาะหน้า Edit
   document.getElementById('bottomBar').style.display = tabName === 'edit' ? 'flex' : 'none';
+  
+  // ดึงข้อมูลอัตโนมัติเมื่อเข้าหน้า View
   if (tabName === 'view') fetchDataFromSheet();
 }
 
@@ -152,7 +200,7 @@ function initGrid() {
         <div class="days-remain" id="days-${i}"></div>
         
         <button class="btn-single-update" id="btn-update-${i}" onclick="updateSingleSlot(${i})">
-          <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกช่อง ${i + 1}
+          <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกแค่ช่อง ${i + 1}
         </button>
       </div>`;
   }
@@ -190,7 +238,7 @@ function showToast(msg, isSuccess) {
   toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// ---- ฟังก์ชันใหม่: อัปเดตเฉพาะช่องที่เลือก ----
+// ---- อัปเดตข้อมูลทีละช่องอย่างแม่นยำ ----
 async function updateSingleSlot(index) {
   const btn = document.getElementById(`btn-update-${index}`);
   const originalHtml = btn.innerHTML;
@@ -200,14 +248,14 @@ async function updateSingleSlot(index) {
   const slot = cabinetData[index];
   const status = slot.name ? calculateStatus(slot.expiry).text : 'ว่าง';
   
-  // สร้างข้อมูลแถวเดียว
+  // ชุดข้อมูลแถวเดียวที่ส่งไปต้องชัดเจน
   const rowData = [index + 1, slot.name || '', slot.expiry || '', status, new Date().toLocaleString('th-TH')];
 
   try {
     const res = await fetch(WEB_APP_URL, { 
       method: 'POST', 
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-      // แนบ action = "update_single" ไปให้ Sheet รู้
+      // ระบุชัดเจนว่าเป็น action: "update_single"
       body: JSON.stringify({ action: "update_single", rowIndex: index + 1, value: rowData }), 
       redirect: 'follow' 
     });
@@ -220,17 +268,19 @@ async function updateSingleSlot(index) {
   }
 }
 
-// ---- ฟังก์ชันเดิม: อัปเดตทั้งหมด ----
+// ---- อัปเดตข้อมูลทั้งหมด ----
 async function saveAllToCloud() {
   const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกทั้งหมด...';
   const rows = cabinetData.map((slot, i) => [i + 1, slot.name || '', slot.expiry || '', slot.name ? calculateStatus(slot.expiry).text : 'ว่าง', new Date().toLocaleString('th-TH')]);
+  
   try {
     const res = await fetch(WEB_APP_URL, { 
       method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      // ระบุชัดเจนว่าเป็น action: "update_all"
       body: JSON.stringify({ action: "update_all", values: rows }), redirect: 'follow' 
     });
     if (res.ok) showToast('✅ บันทึกข้อมูลทั้งหมดสำเร็จ!', true); else throw new Error('Network error');
-  } catch (err) { showToast('❌ บันทึกไม่สำเร็จ', false); } finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> บันทึกข้อมูลทั้งหมด'; }
+  } catch (err) { showToast('❌ บันทึกไม่สำเร็จ', false); } finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> บันทึกข้อมูลทั้งหมด 8 ช่อง'; }
 }
 
 async function fetchDataFromSheet() {
@@ -263,6 +313,7 @@ async function fetchDataFromSheet() {
   }
 }
 
+// รันครั้งแรกตอนโหลดหน้าเว็บ
 initGrid();
 </script>
 </body>
