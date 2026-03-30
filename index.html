@@ -84,7 +84,7 @@
 <body>
 
 <header>
-  <h1><i class="fa-solid fa-notes-medical"></i> ตู้ยาสามัญ</h1>
+  <h1><i class="fa-solid fa-notes-medical"></i> ตู้ยาสามัญอัจฉริยะ</h1>
 </header>
 
 <div class="tabs">
@@ -98,19 +98,19 @@
   <div id="page-home" class="page active">
     <div class="home-wrapper">
       <i class="fa-solid fa-briefcase-medical home-icon"></i>
-      <h2 class="home-title">ระบบจัดการตู้ยาสามัญ</h2>
+      <h2 class="home-title">ระบบจัดการตู้ยาอัจฉริยะ</h2>
       <p class="home-subtitle">กรุณาเลือกเมนูที่ต้องการทำงาน</p>
       
       <div class="menu-grid">
         <div class="menu-card edit-menu" onclick="switchTab('edit')">
           <i class="fa-solid fa-gear"></i>
           <h3>ตั้งค่า / จัดการยา</h3>
-          <p>เพิ่มข้อมูลยา และวันหมดอายุ</p>
+          <p>เพิ่มข้อมูลยา และวันหมดอายุลงในช่องยาทั้ง 8 ช่อง</p>
         </div>
         <div class="menu-card view-menu" onclick="switchTab('view')">
           <i class="fa-solid fa-clipboard-check"></i>
           <h3>ตรวจสอบข้อมูล</h3>
-          <p>ดูสถานะข้อมูลยา</p>
+          <p>ดูสถานะข้อมูลยาจาก Google Sheets แบบเรียลไทม์</p>
         </div>
       </div>
     </div>
@@ -122,7 +122,7 @@
 
   <div id="page-view" class="page">
     <button class="btn-refresh" onclick="fetchDataFromSheet()">
-      <i class="fa-solid fa-rotate-right"></i> อัปเดตข้อมูล
+      <i class="fa-solid fa-rotate-right"></i> อัปเดตข้อมูลจากเซิร์ฟเวอร์
     </button>
     <div class="med-grid" id="viewGrid">
       </div>
@@ -131,7 +131,7 @@
 </div>
 
 <div class="bottom-bar" id="bottomBar">
-  <button class="btn-save" id="saveBtn" onclick="saveAllToCloud()"><i class="fa-solid fa-layer-group"></i> บันทึกข้อมูลยา</button>
+  <button class="btn-save" id="saveBtn" onclick="saveAllToCloud()"><i class="fa-solid fa-layer-group"></i> บันทึกข้อมูล 8 ช่องลงเซิร์ฟเวอร์</button>
 </div>
 
 <div id="toast"></div>
@@ -223,7 +223,7 @@ async function saveAllToCloud() {
       method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
       body: JSON.stringify({ values: rows }), redirect: 'follow' 
     });
-    if (res.ok) showToast('✅ บันทึกข้อมูลสำเร็จ!', true); else throw new Error('Network error');
+    if (res.ok) showToast('✅ บันทึกข้อมูลลง Google Sheets สำเร็จ!', true); else throw new Error('Network error');
   } catch (err) { showToast('❌ บันทึกไม่สำเร็จ กรุณาลองใหม่', false); } finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> บันทึกข้อมูล 8 ช่องลงเซิร์ฟเวอร์'; }
 }
 
@@ -262,18 +262,22 @@ async function fetchDataFromSheet() {
               <div class="info-label">วันหมดอายุ</div>
               <div class="info-value ${row[3] === 'หมดอายุ' ? 'empty-text' : ''}" style="${row[3] === 'หมดอายุ' ? 'color: var(--danger);' : ''}">${row[2] || '-'}</div>
             </div>
+            <div class="update-time"><i class="fa-regular fa-clock"></i> อัปเดตเมื่อ: ${row[4] || '-'}</div>
+          </div>
         `;
       });
-      showToast('✅ อัพเดตข้อมูลล่าสุดสำเร็จ', true);
+      showToast('✅ โหลดข้อมูลล่าสุดสำเร็จ', true);
     } else throw new Error('Format Error');
   } catch (error) {
     viewGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--danger);"><i class="fa-solid fa-triangle-exclamation fa-2x"></i><br><br>โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่</div>';
-    showToast('❌ อัพเดตข้อมูลไม่สำเร็จ', false);
+    showToast('❌ โหลดข้อมูลไม่สำเร็จ', false);
   }
 }
 
 // รันครั้งแรก
 initGrid();
 </script>
+</body>
+</html>
 </body>
 </html>
