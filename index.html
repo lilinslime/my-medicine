@@ -84,7 +84,7 @@
 <body>
 
 <header>
-  <h1><i class="fa-solid fa-notes-medical"></i> ตู้ยาสามัญอัจฉริยะ</h1>
+  <h1><i class="fa-solid fa-notes-medical"></i> ตู้ยาสามัญ</h1>
 </header>
 
 <div class="tabs">
@@ -98,19 +98,19 @@
   <div id="page-home" class="page active">
     <div class="home-wrapper">
       <i class="fa-solid fa-briefcase-medical home-icon"></i>
-      <h2 class="home-title">ระบบจัดการตู้ยาอัจฉริยะ</h2>
+      <h2 class="home-title">ระบบจัดการตู้ยา</h2>
       <p class="home-subtitle">กรุณาเลือกเมนูที่ต้องการทำงาน</p>
       
       <div class="menu-grid">
         <div class="menu-card edit-menu" onclick="switchTab('edit')">
           <i class="fa-solid fa-gear"></i>
           <h3>ตั้งค่า / จัดการยา</h3>
-          <p>เพิ่มข้อมูลยา และวันหมดอายุลงในช่องยาทั้ง 8 ช่อง</p>
+          <p>เพิ่มข้อมูลยา และวันหมดอายุลงในช่องยา</p>
         </div>
         <div class="menu-card view-menu" onclick="switchTab('view')">
           <i class="fa-solid fa-clipboard-check"></i>
           <h3>ตรวจสอบข้อมูล</h3>
-          <p>ดูสถานะข้อมูลยาจาก Google Sheets แบบเรียลไทม์</p>
+          <p>ดูสถานะข้อมูลยา</p>
         </div>
       </div>
     </div>
@@ -122,7 +122,7 @@
 
   <div id="page-view" class="page">
     <button class="btn-refresh" onclick="fetchDataFromSheet()">
-      <i class="fa-solid fa-rotate-right"></i> อัปเดตข้อมูลจากเซิร์ฟเวอร์
+      <i class="fa-solid fa-rotate-right"></i> อัปเดตข้อมูล
     </button>
     <div class="med-grid" id="viewGrid">
       </div>
