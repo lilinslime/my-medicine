@@ -140,9 +140,15 @@
 // ---------- เอา URL ของ Apps Script มาใส่ตรงนี้เลยครับ ----------
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxohkK4AXnlJiRWWRCrcXbMCSf9ZHZsVsFdvz1lvUAYR0Z9xqwqs5f9nHZRgWc6NOp1sg/exec";
 
+// ---------- เปลี่ยนรายการยาเหลือ 6 ตัว ----------
 const MEDICINES = [
-  "--- ว่าง (ไม่มียา) ---", "พาราเซตามอล 500mg", "ยาแก้ไอ", "ยาลดกรด (แอนตาซิด)", 
-  "ยาแก้ท้องเสีย (loperamide)", "ยาแก้แพ้ (chlorpheniramine)", "ยาแก้ปวดท้อง (buscopan)", "ผงเกลือแร่ ORS", "พลาสเตอร์", "เบตาดีน"
+  "--- ว่าง (ไม่มียา) ---", 
+  "พาราเซตามอล 500mg", 
+  "ยาแก้ไอ", 
+  "ยาแก้ท้องเสีย (loperamide)", 
+  "ยาแก้แพ้ (chlorpheniramine)", 
+  "ผงเกลือแร่ ORS", 
+  "พลาสเตอร์"
 ];
 
 let cabinetData = JSON.parse(localStorage.getItem('smartCabinetData')) || Array(8).fill({ name: "", expiry: "" });
@@ -277,7 +283,5 @@ async function fetchDataFromSheet() {
 // รันครั้งแรก
 initGrid();
 </script>
-</body>
-</html>
 </body>
 </html>
